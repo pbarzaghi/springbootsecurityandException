@@ -3,8 +3,10 @@ package com.example.security.springbootSecurity.entity;
 import com.example.security.springbootSecurity.model.Roles;
 import jakarta.persistence.*;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -15,7 +17,10 @@ import java.util.List;
 
 @Data
 @Entity
+@NoArgsConstructor
+@AllArgsConstructor
 @Builder
+
 @Table(name="usuario")
 public class User implements UserDetails {
 
@@ -35,7 +40,6 @@ public class User implements UserDetails {
     private String username;
     private String password;
 
-
     @Enumerated (EnumType.STRING)
     private Roles rol;
 
@@ -45,10 +49,7 @@ public class User implements UserDetails {
         return List.of(new SimpleGrantedAuthority(rol.name()));
     }
 
-    @Override
-    public String getPassword() {
-        return this.getPassword();
-    }
+
 
     @Override
     public boolean isAccountNonExpired() {

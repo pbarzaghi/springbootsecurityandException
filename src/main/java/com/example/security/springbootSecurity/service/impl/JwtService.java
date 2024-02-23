@@ -6,6 +6,7 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.java.Log;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -17,6 +18,7 @@ import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
 import java.util.Date;
 import java.util.function.Function;
+import java.util.logging.Logger;
 
 @Service
 @RequiredArgsConstructor
@@ -62,12 +64,15 @@ public class JwtService {
     public String generateToken(User user) {
         String token = Jwts
                 .builder()
-                .subject(user.getUsername())
+                .subject(user.getUsername() )
                 .issuedAt(new Date(System.currentTimeMillis()))
                 .expiration(new Date(System.currentTimeMillis() + 24*60*60*1000 ))
                 .signWith(getSigninKey())
                 .compact();
+        System.out.println("===============================");
+        System.out.println(token);
 
+        System.out.println("===============================");
         return token;
     }
 

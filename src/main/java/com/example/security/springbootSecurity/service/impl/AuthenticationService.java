@@ -10,6 +10,11 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Service
 @RequiredArgsConstructor
 public class AuthenticationService {
@@ -45,16 +50,22 @@ public class AuthenticationService {
     public AuthenticationResponse authenticate(UserDto userDto) {
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
-                        userDto.getUsername(),
+                        userDto.getUsername() ,
                         userDto.getPassword()
                 )
         );
 
+
         User user = userRepository.findByUsername(userDto.getUsername()).orElseThrow();
         String jwt = jwtService.generateToken(user);
+        if(!userDto.getRol().name().equals(user.getRol().name()))
+            return new AuthenticationResponse(null,
+                    "The "+userDto.getRol().name()+ " Rol does not have permissions");
         return new AuthenticationResponse(jwt, "User login was successful");
 
     }
+
+
 
 
 

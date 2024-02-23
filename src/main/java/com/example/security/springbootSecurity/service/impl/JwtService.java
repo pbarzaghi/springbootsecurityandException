@@ -69,10 +69,7 @@ public class JwtService {
                 .expiration(new Date(System.currentTimeMillis() + 24*60*60*1000 ))
                 .signWith(getSigninKey())
                 .compact();
-        System.out.println("===============================");
-        System.out.println(token);
 
-        System.out.println("===============================");
         return token;
     }
 

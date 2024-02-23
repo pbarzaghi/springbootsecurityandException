@@ -1,5 +1,6 @@
 package com.example.security.springbootSecurity.service.impl;
 
+import com.example.security.springbootSecurity.dto.UserDto;
 import com.example.security.springbootSecurity.entity.User;
 import com.example.security.springbootSecurity.repository.UserRepository;
 import com.example.security.springbootSecurity.service.UserService;
@@ -18,18 +19,18 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     private final UserRepository userRepository;
 
     @Override
-    public User save(User user) {
-        return userRepository.save(user);
+    public User save(User  user) {
+        return  userRepository.save( user);
     }
 
     @Override
     public User update(User user) {
-        return userRepository.save(user);
+        return  userRepository.save( user);
     }
-
     @Override
     public List<User> findAll() {
-        return userRepository.findAll();
+       return userRepository.findAll();
+
     }
 
     @Override
@@ -53,4 +54,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         return userRepository.findByUsername(username).orElseThrow( () -> new UsernameNotFoundException("User not found"));
     }
+
+
+
 }

@@ -5,6 +5,8 @@ import com.example.security.springbootSecurity.entity.User;
 import com.example.security.springbootSecurity.model.AuthenticationResponse;
 import com.example.security.springbootSecurity.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -15,6 +17,7 @@ public class AuthenticationService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
+    private final AuthenticationManager authenticationManager;
     public AuthenticationResponse register(UserDto userDto) {
 
         // check if user already exist. if exist than authenticate the user
@@ -35,11 +38,24 @@ public class AuthenticationService {
         user = userRepository.save(user);
 
         String jwt = jwtService.generateToken(user);
-
-       //// saveUserToken(jwt, user);
-
         return new AuthenticationResponse(jwt, "User registration was successful");
 
     }
+
+    public AuthenticationResponse authenticate(UserDto userDto) {
+        authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(
+                        userDto.getUsername(),
+                        userDto.getPassword()
+                )
+        );
+
+        User user = userRepository.findByUsername(userDto.getUsername()).orElseThrow();
+        String jwt = jwtService.generateToken(user);
+        return new AuthenticationResponse(jwt, "User login was successful");
+
+    }
+
+
 
 }

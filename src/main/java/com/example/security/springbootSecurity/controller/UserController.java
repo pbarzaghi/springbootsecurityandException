@@ -1,54 +1,56 @@
 package com.example.security.springbootSecurity.controller;
 
 import com.example.security.springbootSecurity.dto.UserDto;
-import com.example.security.springbootSecurity.entity.User;
+
+import com.example.security.springbootSecurity.exception.BadRequestException;
+import com.example.security.springbootSecurity.exception.NotFoundException;
 import com.example.security.springbootSecurity.service.UserService;
 import lombok.RequiredArgsConstructor;
-import org.modelmapper.ModelMapper;
-import org.springframework.data.repository.query.Param;
+
+import org.mapstruct.control.MappingControl;
+import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/users")
+@RequestMapping("api/users")
 public class UserController {
 
-    private ModelMapper modelMapper;
+
     private final UserService userService  ;
    @GetMapping
    public ResponseEntity<List<UserDto>> getAllUser(){
-
-
-      List<UserDto> listUserDtos= userService.findAll().stream()
-               .map(this::mapperDto)
-               .collect(Collectors.toList());
-
-        return   ResponseEntity.ok(listUserDtos);
-
+   try {
+         return ResponseEntity.ok(userService.findAll());
+   }catch ( Exception e){
+       throw new BadRequestException("FALLO POR ALGO",HttpStatus.CONFLICT);
+   }
     }
-    @GetMapping
+    @GetMapping("/{id}")
     public ResponseEntity< UserDto> getUserById(@PathVariable Long id){
-         return   ResponseEntity.ok( mapperDto(userService.findById(id).get()));
+       Optional<UserDto> opUserDto= userService.findById(id) ;
+        if (opUserDto.get() != null)
+            return   ResponseEntity.ok(opUserDto.get() );
+
+        throw (new NotFoundException("User not found",HttpStatus.NOT_FOUND));
 
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public void saveUser(@RequestBody UserDto userDto){
-        userService.save( mapper(userDto ));
+        userService.save(  userDto );
 
-    }
-
-
-    @PutMapping
+    }    @PutMapping
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void udateUser(@RequestBody UserDto userDto){
-        userService.update( mapper(userDto ));
+        userService.update( userDto);
 
     }
 
@@ -69,28 +71,7 @@ public class UserController {
     }
 
 
-    private User mapper(UserDto userDto){
-        return  User.builder()
-                .firstName(userDto.getFirstName())
-                .lastName(userDto.getLastName())
-                .email(userDto.getEmail())
-                .rol(userDto.getRol())
-                .username(userDto.getUsername())
-                .password(userDto.getPassword())
-                .build();
-    }
-private UserDto mapperDto(User user){
-        return  UserDto.builder()
-                .id(user.getId())
-                .firstName(user.getFirstName())
-                .lastName(user.getLastName())
-                .email(user.getEmail())
-                .rol(user.getRol())
-                .username(user.getUsername())
-                .password(user.getPassword())
-                .build();
 
-    }
 
 
 }

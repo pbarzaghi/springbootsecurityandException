@@ -2,18 +2,16 @@ package com.example.security.springbootSecurity.service.impl;
 
 import com.example.security.springbootSecurity.dto.UserDto;
 import com.example.security.springbootSecurity.entity.User;
+import com.example.security.springbootSecurity.exception.FieldAlreadyExistException;
 import com.example.security.springbootSecurity.model.AuthenticationResponse;
 import com.example.security.springbootSecurity.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -27,7 +25,8 @@ public class AuthenticationService {
 
         // check if user already exist. if exist than authenticate the user
         if(userRepository.findByUsername(userDto.getUsername()).isPresent()) {
-            return new AuthenticationResponse(null, "User already exist");
+          //  return new AuthenticationResponse(null, "User already exist");
+           throw  new FieldAlreadyExistException("User already exist", HttpStatus.CONFLICT);
         }
 
         User user =User.builder()
@@ -59,8 +58,10 @@ public class AuthenticationService {
         User user = userRepository.findByUsername(userDto.getUsername()).orElseThrow();
         String jwt = jwtService.generateToken(user);
         if(!userDto.getRol().name().equals(user.getRol().name()))
-            return new AuthenticationResponse(null,
-                    "The "+userDto.getRol().name()+ " Rol does not have permissions");
+//            return new AuthenticationResponse(null,
+//                    "The "+userDto.getRol().name()+ " Rol does not have permissions");
+                  throw new FieldAlreadyExistException("The "+userDto.getRol().name()+ " Rol does not have permissions",
+                                                       HttpStatus.CONFLICT);
         return new AuthenticationResponse(jwt, "User login was successful");
 
     }
